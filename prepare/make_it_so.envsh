@@ -21,7 +21,7 @@ mkdir -p "${CICD_SCRIPTS_TOOLS_DIR}"
 # Go back to the prepare directory
 cd prepare
 # Install tools
-[[ "${CICD_SCRIPTS_TOOL_YQ}" == 'true' ]] && ./prepare-install-jq.sh
+[[ "${CICD_SCRIPTS_TOOL_YQ}" == 'true' ]] && ./prepare-install-yq.sh
 
 # Pro tip: add CICD_SCRIPTS_TOOLS_DIR to your PATH - well, for security reasons might want to directly call these binaries instead, but yeah.
 # Do what feels okay to you.

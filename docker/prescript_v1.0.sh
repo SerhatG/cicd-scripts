@@ -15,7 +15,7 @@ source "${SCRIPT_DIR}"/../prepare/make_it_so.envsh
 
 # We should only proceed at this time if we find an ECR URL
 if [[ "${AERIUS_REGISTRY_URL}" != *.ecr.*.amazonaws.com/* ]]; then
-  echo '[docker/prescript] # Did not find an ECR URL, skipping prescript'
+  echo '[docker/prescript] # Did not find an ECR URL, skipping the rest of the prescript'
   exit 0
 fi
 
