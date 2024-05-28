@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 TEMP_FLAGS_RESOURCES_DIR=$(mktemp -d)
-"${CICD_SCRIPTS_DIR}"/common/git_checkout_efficient.sh "${TEMP_FLAGS_RESOURCES_DIR}" git@github.com:aerius/flags.git main
+"${CICD_SCRIPTS_DIR}"/common/git_checkout_efficient.sh "${TEMP_FLAGS_RESOURCES_DIR}" git@github.com:SerhatG/flags.git onelogin
 
 function read_job_flags_cleanup() {
   echo '# Cleaning up flags directory'
