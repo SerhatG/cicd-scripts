@@ -24,24 +24,42 @@ for FLAG in $(echo "${FLAGS}" | tr ',' '\n'); do
   fi
 
   echo '# Processing flag: '"${FLAG}"
-  FLAG_PATH=
-  if [[ -f "${FLAGS_RESOURCES_DIR}/${FLAG}.envsh" ]]; then
-    FLAG_PATH="${FLAGS_RESOURCES_DIR}/${FLAG}.envsh"
+  # If flag contains one slash, it's a dynamic flag
+  if [[ "${FLAG}" =~ ^[A-Z0-9_\-]+/[A-Z0-9_\-]+$ ]]; then
+    echo '- Dynamic flag detected, reading from SSM..'
+    IFS='/' read FLAG_ENV_NAME FLAG_ENV_ENTRY <<< "${FLAG}"
+    ENTRIES=$(aws ssm describe-parameters --output text --query 'Parameters[*].Name' --filter 'Key=Name,Values=/'"${FLAG_ENV_NAME,,}"'/flags/'"${FLAG_ENV_ENTRY,,}"'/')
+    if [[ -z "${ENTRIES}" ]]; then
+      echo '# Could not find dynamic flag '"${FLAG}"'.. Crashing hard..'
+      read_job_flags_cleanup
+      exit 1
+    fi
+    while read ENTRY_NAME ENTRY_VALUE; do
+      echo '- Reading in: '"${ENTRY_NAME}"' --> '"${ENTRY_VALUE}"
+      ENTRY_NAME="${ENTRY_NAME##*/}"
+      FLAG_SETTINGS[${ENTRY_NAME}]="${ENTRY_VALUE}"
+    done < <(aws ssm get-parameters --output text --names "${ENTRIES}" --with-decryption --query 'Parameters[*].[Name, Value]')
+  # Else it's a file-based flag
+  else
+    FLAG_PATH=
+    if [[ -f "${FLAGS_RESOURCES_DIR}/${FLAG}.envsh" ]]; then
+      FLAG_PATH="${FLAGS_RESOURCES_DIR}/${FLAG}.envsh"
 
-    echo '- Found as global flag.. Reading in..'
-    source "${FLAG_PATH}"
-  fi
-  if [[ -f "${FLAGS_RESOURCES_DIR}/${PRODUCT_NAME}/${FLAG}.envsh" ]]; then
-    FLAG_PATH="${FLAGS_RESOURCES_DIR}/${PRODUCT_NAME}/${FLAG}.envsh"
+      echo '- Found as global flag.. Reading in..'
+      source "${FLAG_PATH}"
+    fi
+    if [[ -f "${FLAGS_RESOURCES_DIR}/${PRODUCT_NAME}/${FLAG}.envsh" ]]; then
+      FLAG_PATH="${FLAGS_RESOURCES_DIR}/${PRODUCT_NAME}/${FLAG}.envsh"
 
-    echo '- Found as product specific flag.. Reading in..'
-    source "${FLAG_PATH}"
-  fi
+      echo '- Found as product specific flag.. Reading in..'
+      source "${FLAG_PATH}"
+    fi
 
-  if [[ -z "${FLAG_PATH}" ]]; then
-    echo '# Could not find flag '"${FLAG}"'. Crashing hard..'
-    read_job_flags_cleanup
-    exit 1
+    if [[ -z "${FLAG_PATH}" ]]; then
+      echo '# Could not find flag '"${FLAG}"'. Crashing hard..'
+      read_job_flags_cleanup
+      exit 1
+    fi
   fi
 done
 
