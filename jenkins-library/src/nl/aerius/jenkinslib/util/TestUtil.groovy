@@ -43,6 +43,10 @@ def static getLastSuccesfulBuildNumber(def currentBuild) {
 }
 
 def static getTestStatusMessage(def currentBuild) {
+    return getTestStatusMessage(currentBuild, true)
+}
+
+def static getTestStatusMessage(def currentBuild, boolean showDiff) {
     def testStatus = ""
     AbstractTestResultAction testResultAction = currentBuild.rawBuild.getAction(AbstractTestResultAction.class)
     if (testResultAction != null) {
@@ -63,7 +67,7 @@ def static getTestStatusMessage(def currentBuild) {
         def failedUnittestsPrevious = null
 
         def previousResult = testResultAction.getPreviousResult()
-        if (previousResult) {
+        if (previousResult && showDiff) {
             totalPrevious           = previousResult.totalCount
             failedPrevious          = previousResult.failCount
             skippedPrevious         = previousResult.skipCount

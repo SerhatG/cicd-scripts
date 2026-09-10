@@ -10,6 +10,7 @@ def call(Map config = [:], Closure body) {
   def jobIsBuild     = !jobIsQA && !jobIsPrChecker && !jobIsDeploy
 
   def jobIsImageBuildAcc = env.JOB_NAME == 'IMAGE-BUILD-ACC'
+  def jobIsQAGeneric     = env.JOB_NAME == 'QA-GENERIC'
 
   pipeline {
     // Use agent label from config if provided
@@ -185,7 +186,7 @@ def call(Map config = [:], Closure body) {
               // Append test status if it's a QA job
               def testStatusMessage = ''
               if (jobIsQA) {
-                testStatusMessage = cicdGetTestStatusMessage()
+                testStatusMessage = cicdGetTestStatusMessage(!jobIsQAGeneric)
                 if (testStatusMessage != '') {
                   testStatusMessage = "\n\n```\n${testStatusMessage}\n```"
                 }

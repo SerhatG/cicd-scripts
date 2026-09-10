@@ -1,1 +1,1 @@
-def call() {nl.aerius.jenkinslib.util.TestUtil.getTestStatusMessage(currentBuild)}
+def call(boolean showDiff) {nl.aerius.jenkinslib.util.TestUtil.getTestStatusMessage(currentBuild, showDiff)}
