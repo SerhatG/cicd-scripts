@@ -28,7 +28,7 @@ function process_template() {
       if [[ -z "${BASE_DOCKERFILE}" ]]; then
         # If not found try to find matching base Dockerfile
         BASE_DOCKERFILE=$(find . -wholename '*/'"${BASE}"'/Dockerfile')
-        [[ -z "${BASE_DOCKERFILE}" ]] && _cicd_error 'Could not find base Dockerfile or template: '"${BASE}"
+        [[ -z "${BASE_DOCKERFILE}" ]] && echo 'Could not find base Dockerfile or template: '"${BASE}" && exit 1
       fi
 
       # Copy over dependencies present in the base image directory if found
